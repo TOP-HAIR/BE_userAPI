@@ -2,7 +2,6 @@ package school.sptech.projetotophair.api.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetotophair.domain.empresa.Empresa;
@@ -12,7 +11,6 @@ import school.sptech.projetotophair.service.dto.empresa.mapper.EmpresaMapper;
 import school.sptech.projetotophair.domain.empresa.MetricaEmpresa;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,13 +69,10 @@ public class EmpresaController {
 
     @GetMapping("/top5-empresas/{id}")
     public ResponseEntity<List<EmpresaAvaliacaoDto>> findTop5EmpresasMelhorAvaliadas(
-            @PathVariable(name = "id", required = false) Optional<Long> id,
-            @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String nomeServico, // Added nomeServico
-            @RequestParam(required = false) String nomeEmpresa) {
+            @PathVariable(name = "id", required = false) Optional<Long> id) {
 
         List<EmpresaAvaliacaoDto> dtos = empresaService.listarEmpresasTop5AvaliacoesPorFiltros(
-                estado, nomeServico, nomeEmpresa, id.orElse(null));
+                id.orElse(null));
 
         if (dtos.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -90,11 +85,10 @@ public class EmpresaController {
     public ResponseEntity<List<EmpresaAvaliacaoDto>> findEmpresasFiltro(
             @PathVariable(name = "id", required = false) Optional<Long> id,
             @RequestParam(required = false) String estado,
-            @RequestParam(required = false) String nomeServico, // Added nomeServico
             @RequestParam(required = false) String nomeEmpresa) {
 
         List<EmpresaAvaliacaoDto> dtos = empresaService.listarEmpresasFiltros(
-                estado, nomeServico, nomeEmpresa, id.orElse(null));
+                estado, nomeEmpresa ,id.orElse(null));
 
         if (dtos.isEmpty()) {
             return ResponseEntity.notFound().build();

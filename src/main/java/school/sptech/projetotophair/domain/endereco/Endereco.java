@@ -1,12 +1,9 @@
 package school.sptech.projetotophair.domain.endereco;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import school.sptech.projetotophair.domain.empresa.Empresa;
-import school.sptech.projetotophair.domain.historicoservico.HistoricoServico;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Endereco {
@@ -26,7 +23,9 @@ public class Endereco {
 
     private String cep;
 
-    public Endereco(Long idEndereco, String logradouro, Integer numero, String estado, String complemento, String cidade, String cep) {
+    private String bairro;
+
+    public Endereco(Long idEndereco, String logradouro, Integer numero, String estado, String complemento, String cidade, String cep, String bairro) {
         this.idEndereco = idEndereco;
         this.logradouro = logradouro;
         this.numero = numero;
@@ -34,6 +33,7 @@ public class Endereco {
         this.complemento = complemento;
         this.cidade = cidade;
         this.cep = cep;
+        this.bairro = bairro;
     }
 
     public Endereco() {
@@ -94,5 +94,13 @@ public class Endereco {
 
     public void setCep(String cep) {
         this.cep = cep;
+    }
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class Arquivo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer idArquivo;
 
     private String nomeArquivoOriginal;
     private String nomeArquivoSalvo;
@@ -31,12 +31,12 @@ public class Arquivo {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private Usuario usuario;
 
-    public Integer getId() {
-        return id;
+    public Integer getIdArquivo() {
+        return idArquivo;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setIdArquivo(Integer idArquivo) {
+        this.idArquivo = idArquivo;
     }
 
     public String getNomeArquivoOriginal() {

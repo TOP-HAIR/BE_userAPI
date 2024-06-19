@@ -42,12 +42,11 @@ public class ArquivoCsv<T> {
                 Servico p = lista.getElemento(i);
 
                 // Converte LocalDate para LocalDateTime com horário 00:00
-                LocalDate dataLocalDate = p.getAgenda().getData();
-                LocalDateTime dataLocalDateTime = dataLocalDate.atStartOfDay();
+                LocalDateTime dataLocalDate = p.getAgenda().getStartTime();
 
                 // Formatar a data
                 DateTimeFormatter formatoBrasileiro = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                String dataFormatada = dataLocalDateTime.format(formatoBrasileiro);
+                String dataFormatada = dataLocalDate.format(formatoBrasileiro);
 
                 saida.format("%d;%s;%s;%.2f;%s;%s;%s\n", p.getIdServico(),
                         p.getNomeServico(),
@@ -134,10 +133,10 @@ public class ArquivoCsv<T> {
         ListaObj<Servico> lista = new ListaObj<>(5);
 
         lista.adiciona(new Servico(1L, "Hidratação", "Hidrata o cabelo com produtos de qualidade.",
-                100.50, "1 hora", new Agenda(1L, LocalDate.now(),"1", "sim", null, null),
+                100.50, "1 hora", new Agenda(1L, LocalDateTime.now(), null,"1", "sim", null, null),
                 new Empresa(2L, "Carmens Cabelo & Vida.", "12.356.444.0001/45" ,
                         new Endereco(3L,"rua dois", 5, "São Paulo",
-                                "A", "São Paulo", "12345-089")
+                                "A", "São Paulo", "12345-089", "Tatuape")
                 )));
 
        gravaArquivoCsv(lista, "Servico");

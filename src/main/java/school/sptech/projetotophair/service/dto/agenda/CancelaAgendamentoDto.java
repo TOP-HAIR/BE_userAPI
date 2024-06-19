@@ -2,13 +2,10 @@ package school.sptech.projetotophair.service.dto.agenda;
 
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class AgendaDto {
+public class CancelaAgendamentoDto {
     private Long idAgenda;
-    private LocalDateTime start;
-    private LocalDateTime end;
-    private String status;
+    private String title;
 }

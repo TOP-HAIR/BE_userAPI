@@ -60,7 +60,7 @@ public class Usuario {
     @Nullable
     @OneToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "fkArquivo", referencedColumnName = "id")
+    @JoinColumn(name = "fkArquivo", referencedColumnName = "idArquivo")
     private Arquivo arquivo;
 
     public Long getIdUsuario() {

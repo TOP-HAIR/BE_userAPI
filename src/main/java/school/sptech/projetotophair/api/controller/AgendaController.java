@@ -1,6 +1,7 @@
 package school.sptech.projetotophair.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.sptech.projetotophair.domain.agenda.repository.RelatorioAgenda;
@@ -38,39 +39,41 @@ public class AgendaController {
     private AgendaService agendaService;
 
     @PostMapping
-    public ResponseEntity<AgendaDto> cadastrar(@RequestBody Agenda agenda) {
-        agenda.setData(LocalDate.now());
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm");
-        agenda.setHora(LocalTime.now().format(formato));
+    public ResponseEntity<AgendaDto> cadastrar(@RequestBody Agenda agenda, @RequestParam Long idEmpresa, @RequestParam Long idUsuario, @RequestParam Long idServico) {
         Agenda agendaCadastrada = agendaService.cadastrarAgenda(agenda);
         AgendaDto agendaDto = AgendaMapper.toAgendaDto(agendaCadastrada);
+        vincularEmpresa(agendaDto.getIdAgenda(), idEmpresa);
+        vincularUsuario(agendaDto.getIdAgenda(), idUsuario);
+        vincularServico(agendaDto.getIdAgenda(), idServico);
         return ResponseEntity.ok(agendaDto);
     }
 
-    @PutMapping("/vincular-empresa/{idAgenda}/{idEmpresa}")
-    public ResponseEntity<AgendaEmpresaVinculadaDto> vincularEmpresa(@PathVariable Long idAgenda, @PathVariable Long idEmpresa){
+    @PutMapping("/cancelar-agendamento/{idAgenda}")
+    public ResponseEntity<CancelaAgendamentoDto> cancelarAgendamento(@PathVariable Long idAgenda) {
+        CancelaAgendamentoDto cancelaAgendamentoDto = agendaService.cancelarAgendamento(idAgenda);
+
+        if (cancelaAgendamentoDto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Retorna 404 se não encontrar o agendamento
+        }
+
+        return ResponseEntity.ok(cancelaAgendamentoDto);
+    }
+
+    public void vincularEmpresa(Long idAgenda, Long idEmpresa){
         Agenda agenda = agendaService.vincularEmpresa(idAgenda, idEmpresa);
-        AgendaEmpresaVinculadaDto agendaEmpresaVinculadaDto = AgendaMapper.toAgendaEmpresaVinculadaDto(agenda);
-        return ResponseEntity.ok(agendaEmpresaVinculadaDto);
     }
 
-    @PutMapping("/vincular-usuario/{idAgenda}/{idUsuario}")
-    public ResponseEntity<UsuarioAgendaResponseDto> vincularUsuario(@PathVariable Long idAgenda, @PathVariable Long idUsuario){
+    public void vincularUsuario(Long idAgenda, Long idUsuario){
         Usuario usuario = agendaService.vincularUsuario(idAgenda, idUsuario);
-        UsuarioAgendaResponseDto usuarioAgendaResponseDto = UsuarioMapper.toUsuarioAgendaResponseDto(usuario);
-        return ResponseEntity.ok(usuarioAgendaResponseDto);
     }
 
-    @PutMapping("/vincular-servico/{idAgenda}/{idServico}")
-    public ResponseEntity<AgendaServicoDto> vincularServico(@PathVariable Long idAgenda, @PathVariable Long idServico){
+    public void vincularServico(Long idAgenda, Long idServico){
         AgendaServico agendaServico = agendaService.vincularServico(idAgenda, idServico);
-        AgendaServicoDto agendaServicoDto = AgendaServicoMapper.toAgendaServicoDto(agendaServico);
-        return ResponseEntity.ok(agendaServicoDto);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Agenda>> listar(@PathVariable Long id) {
-        Optional<Agenda> agenda = agendaService.buscarAgendaPorId(id);
+    public ResponseEntity<Optional<AgendaDto>> listar(@PathVariable Long id) {
+        Optional<AgendaDto> agenda = agendaService.buscarAgendaPorId(id);
         return ResponseEntity.ok(agenda);
     }
 
@@ -165,9 +168,9 @@ public ResponseEntity<List<UltimosAgendamentosDto>> ultimosAgendamentos(@PathVar
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/periodos-lista/{id}")
-    public ResponseEntity<List<RelatorioAgenda>> buscarPeriodos(@PathVariable Long id) {
-        List<RelatorioAgenda> periodos = agendaService.buscarPeriodos(id);
-        return ResponseEntity.ok(periodos);
-    }
+//    @GetMapping("/periodos-lista/{id}")
+//    public ResponseEntity<List<RelatorioAgenda>> buscarPeriodos(@PathVariable Long id) {
+//        List<RelatorioAgenda> periodos = agendaService.buscarPeriodos(id);
+//        return ResponseEntity.ok(periodos);
+//    }
 }

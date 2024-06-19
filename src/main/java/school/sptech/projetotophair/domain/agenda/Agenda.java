@@ -2,56 +2,60 @@ package school.sptech.projetotophair.domain.agenda;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import school.sptech.projetotophair.domain.avaliacao.Avaliacao;
 import school.sptech.projetotophair.domain.empresa.Empresa;
-import school.sptech.projetotophair.domain.historicoservico.HistoricoServico;
-import school.sptech.projetotophair.domain.servico.Servico;
 import school.sptech.projetotophair.domain.usuario.Usuario;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "agenda")
 public class Agenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAgenda;
-    @FutureOrPresent
+
     @Nullable
-    private LocalDate data;
+    private LocalDateTime startTime;
+
     @Nullable
-    private LocalDateTime dataInicio;
+    private LocalDateTime endTime;
+
     @Nullable
-    private LocalDateTime dataFim;
-    @Nullable
-    private String hora;
+    private String background;
+
     @NotBlank
-    private String status;
-    @OneToMany(mappedBy = "agenda")
-    List<Usuario> usuarios;
+    private String title;
+
+//    @OneToMany(mappedBy = "agenda")
+//    private List<Usuario> usuarios;
+//
+//    @ManyToOne
+//    @OnDelete(action = OnDeleteAction.SET_NULL)
+//    @JoinColumn(name = "fkEmpresa", referencedColumnName = "idEmpresa")
+//    private Empresa empresa;
+@ManyToOne
+@OnDelete(action = OnDeleteAction.SET_NULL)
+@JoinColumn(name = "fkEmpresa", referencedColumnName = "idEmpresa")
+private Empresa empresa;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "fkEmpresa", referencedColumnName = "idEmpresa")
-    private Empresa empresa;
-
-    public Agenda(Long idAgenda, LocalDate data, String hora, String status, List<Usuario> usuarios, Empresa empresa) {
-        this.idAgenda = idAgenda;
-        this.data = data;
-        this.hora = hora;
-        this.status = status;
-        this.usuarios = usuarios;
-        this.empresa = empresa;
-    }
+    @JoinColumn(name = "fkUsuario", referencedColumnName = "idUsuario")
+    private Usuario usuario;
 
     public Agenda() {
+    }
 
+    public Agenda(Long idAgenda, @Nullable LocalDateTime startTime, @Nullable LocalDateTime endTime, @Nullable String background, String title, Empresa empresa, Usuario usuario) {
+        this.idAgenda = idAgenda;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.background = background;
+        this.title = title;
+        this.empresa = empresa;
+        this.usuario = usuario;
     }
 
     public Long getIdAgenda() {
@@ -63,55 +67,38 @@ public class Agenda {
     }
 
     @Nullable
-    public LocalDate getData() {
-        return data;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
-    public void setData(@Nullable LocalDate data) {
-        this.data = data;
-    }
-
-    @Nullable
-    public LocalDateTime getDataInicio() {
-        return dataInicio;
-    }
-
-    public void setDataInicio(@Nullable LocalDateTime dataInicio) {
-        this.dataInicio = dataInicio;
+    public void setStartTime(@Nullable LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     @Nullable
-    public LocalDateTime getDataFim() {
-        return dataFim;
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 
-    public void setDataFim(@Nullable LocalDateTime dataFim) {
-        this.dataFim = dataFim;
+    public void setEndTime(@Nullable LocalDateTime endTime) {
+        this.endTime = endTime;
     }
 
     @Nullable
-    public String getHora() {
-        return hora;
+    public String getBackground() {
+        return background;
     }
 
-    public void setHora(@Nullable String hora) {
-        this.hora = hora;
+    public void setBackground(@Nullable String background) {
+        this.background = background;
     }
 
-    public String getStatus() {
-        return status;
+    public String getTitle() {
+        return title;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public List<Usuario> getUsuarios() {
-        return usuarios;
-    }
-
-    public void setUsuarios(List<Usuario> usuarios) {
-        this.usuarios = usuarios;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Empresa getEmpresa() {
@@ -120,5 +107,13 @@ public class Agenda {
 
     public void setEmpresa(Empresa empresa) {
         this.empresa = empresa;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 }

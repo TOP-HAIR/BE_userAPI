@@ -5,13 +5,12 @@ import school.sptech.projetotophair.service.dto.arquivo.ArquivoDto;
 import school.sptech.projetotophair.service.dto.arquivo.ArquivoEmpresaVinculadaDto;
 import school.sptech.projetotophair.service.dto.arquivo.ArquivoUsuarioVinculadoDto;
 import school.sptech.projetotophair.service.dto.empresa.mapper.EmpresaMapper;
-import school.sptech.projetotophair.service.dto.usuario.UsuarioDto;
 import school.sptech.projetotophair.service.dto.usuario.mapper.UsuarioMapper;
 
 public class ArquivoMapper {
     public static ArquivoDto toArquivoDto(Arquivo entity){
         ArquivoDto dto = new ArquivoDto();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdArquivo());
         dto.setNomeArquivoOriginal(entity.getNomeArquivoOriginal());
         dto.setNomeArquivoOriginal(entity.getNomeArquivoOriginal());
         dto.setDataUpload(entity.getDataUpload());
@@ -21,7 +20,7 @@ public class ArquivoMapper {
 
     public static ArquivoEmpresaVinculadaDto toArquivoEmpresaVinculadaDto(Arquivo entity){
         ArquivoEmpresaVinculadaDto dto = new ArquivoEmpresaVinculadaDto();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdArquivo());
         dto.setNomeArquivoOriginal(entity.getNomeArquivoOriginal());
         dto.setNomeArquivoOriginal(entity.getNomeArquivoOriginal());
         dto.setDataUpload(entity.getDataUpload());
@@ -35,7 +34,7 @@ public class ArquivoMapper {
         dto.setUsuarioDto(UsuarioMapper.toUsuarioDto(entity.getUsuario()));
         dto.setNomeArquivoOriginal(entity.getNomeArquivoOriginal());
         dto.setNomeArquivoSalvo(entity.getNomeArquivoSalvo());
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdArquivo());
         dto.setDataUpload(entity.getDataUpload());
 
         return dto;

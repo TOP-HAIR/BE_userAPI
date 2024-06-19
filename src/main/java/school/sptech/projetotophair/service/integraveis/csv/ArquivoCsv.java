@@ -38,12 +38,11 @@ public class ArquivoCsv<T> {
                 Servico p = lista.getElemento(i);
 
                 // Converte LocalDate para LocalDateTime com horário 00:00
-                LocalDate dataLocalDate = p.getAgenda().getData();
-                LocalDateTime dataLocalDateTime = dataLocalDate.atStartOfDay();
+                LocalDateTime dataLocalDate = p.getAgenda().getStartTime();
 
                 // Formatar a data
                 DateTimeFormatter formatoBrasileiro = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-                String dataFormatada = dataLocalDateTime.format(formatoBrasileiro);
+                String dataFormatada = dataLocalDate.format(formatoBrasileiro);
 
                 saida.format("%d;%s;%s;%.2f;%s;%s;%s\n", p.getIdServico(),
                         p.getNomeServico(),

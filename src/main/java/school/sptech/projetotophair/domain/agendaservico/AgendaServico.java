@@ -18,14 +18,13 @@ public class AgendaServico {
     @JoinColumn(name = "fkServico", referencedColumnName = "idServico")
     private Servico servico;
 
+    public AgendaServico() {
+    }
+
     public AgendaServico(Long idAgendaServico, Agenda agenda, Servico servico) {
         this.idAgendaServico = idAgendaServico;
         this.agenda = agenda;
         this.servico = servico;
-    }
-
-    public AgendaServico(){
-
     }
 
     public Long getIdAgendaServico() {

@@ -4,7 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
-import school.sptech.projetotophair.domain.agenda.repository.RelatorioAgenda;
+import school.sptech.projetotophair.service.dto.agenda.AgendaDto;
+import school.sptech.projetotophair.service.dto.agenda.CancelaAgendamentoDto;
 import school.sptech.projetotophair.service.dto.agenda.UltimosAgendamentosDto;
 import school.sptech.projetotophair.service.dto.agenda.mapper.AgendaMapper;
 import school.sptech.projetotophair.service.integraveis.fila.Fila;
@@ -20,10 +21,6 @@ import school.sptech.projetotophair.domain.usuario.Usuario;
 import school.sptech.projetotophair.domain.usuario.repository.UsuarioRepository;
 import school.sptech.projetotophair.service.integraveis.pilha.PilhaObj;
 
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-
-import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -51,6 +48,20 @@ public class AgendaService {
         return agendaRepository.save(agenda);
     }
 
+    public CancelaAgendamentoDto cancelarAgendamento(Long idAgenda) {
+        Optional<Agenda> optionalAgenda = agendaRepository.findById(idAgenda);
+
+        if (!optionalAgenda.isPresent()) {
+            return null;
+        }
+
+        Agenda agenda = optionalAgenda.get();
+        agenda.setTitle("Cancelado");
+        agendaRepository.save(agenda);
+
+        return AgendaMapper.toCancelaAgendamentoDto(agenda);
+    }
+
     public AgendaServico vincularServico(Long idAgenda, Long idServico){
         Optional<Agenda> agendaById = agendaRepository.findById(idAgenda);
         Optional<Servico> servicoById = servicoRepository.findById(idServico);
@@ -63,10 +74,16 @@ public class AgendaService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda ou serço não encontrados");
     }
 
-    public Optional<Agenda> buscarAgendaPorId(Long id) {
+    public Optional<AgendaDto> buscarAgendaPorId(Long id) {
         Optional<Agenda> agendaOptional = agendaRepository.findById(id);
         if (agendaOptional.isPresent()) {
-            return agendaOptional;
+            Agenda agenda = agendaOptional.get();
+            AgendaDto dto = new AgendaDto();
+            dto.setIdAgenda(agenda.getIdAgenda());
+            dto.setStart(agenda.getStartTime());
+            dto.setEnd(agenda.getEndTime());
+            dto.setStatus(agenda.getTitle());
+            return Optional.of(dto);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda não encontrada com o ID: " + id);
         }
@@ -77,7 +94,7 @@ public class AgendaService {
         if (usuarioById.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario não encontrado");
         }
-        List<Agenda> allByUsuariosIdUsuario = agendaRepository.findAllByUsuariosIdUsuario(idUsuario);
+        List<Agenda> allByUsuariosIdUsuario = agendaRepository.findAllByUsuarioIdUsuario(idUsuario);
         if (allByUsuariosIdUsuario.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT, "Este usuario não tem agendamentos");
         }
@@ -114,7 +131,10 @@ public class AgendaService {
 
         if (agendaById.isPresent() && usuarioById.isPresent()) {
             usuarioById.get().setAgenda(agendaById.get());
-            return usuarioRepository.save(usuarioById.get());
+            Usuario usuario = usuarioRepository.save(usuarioById.get());
+            agendaById.get().setUsuario(usuario);
+            agendaRepository.save(agendaById.get());
+            return usuario;
         }
 
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Agenda ou usuario não encontrados");
@@ -138,32 +158,54 @@ public class AgendaService {
         }
         agendaRepository.deleteById(id);
     }
-
-
-    public List<UltimosAgendamentosDto> getUltimosAgendamentosDto(Long idEmpresa) {
-        int quantidadeDesejada = 10;
-        PilhaObj<Agenda> ultimosAgendamentosPilha = new PilhaObj<>(quantidadeDesejada);
-
-        List<Agenda> todosAgendamentos = agendaRepository.findAllByEmpresaIdEmpresa(idEmpresa);
-
-        // Adicionar os últimos 10 agendamentos à pilha
-        int startIndex = Math.max(0, todosAgendamentos.size() - quantidadeDesejada);
-        for (int i = startIndex; i < todosAgendamentos.size(); i++) {
-            ultimosAgendamentosPilha.push(todosAgendamentos.get(i));
-        }
-
-        // Obter os itens da pilha na ordem correta
+    public List<UltimosAgendamentosDto> getUltimosAgendamentosDto(Long fkEmpresa) {
+        // Obter os últimos agendamentos pela empresa
+        List<Agenda> todosAgendamentos = agendaRepository.findTop10ByEmpresaIdEmpresaOrderByIdAgendaDesc(fkEmpresa);
         List<UltimosAgendamentosDto> dtos = new ArrayList<>();
-        while (!ultimosAgendamentosPilha.isEmpty()) {
-            Agenda agenda = ultimosAgendamentosPilha.pop();
-            if (agenda != null) {
-                UltimosAgendamentosDto dto = AgendaMapper.toDto(agenda);
-                dtos.add(dto);
+        for (Agenda a: todosAgendamentos) {
+            if (a != null) {
+                UltimosAgendamentosDto dto = AgendaMapper.toDto(a);
+                if (dto != null) {
+                    dtos.add(dto);
+                }
             }
         }
-
         return dtos;
     }
+
+
+
+//    public List<UltimosAgendamentosDto> getUltimosAgendamentosDto(Long fkEmpresa) {
+//        int quantidadeDesejada = 10;
+//        PilhaObj<Agenda> ultimosAgendamentosPilha = new PilhaObj<>(quantidadeDesejada);
+//
+//        // Verificar se a lista retornada do repositório não é nula e não contém nulos
+//        List<Agenda> todosAgendamentos = agendaRepository.findAllByFkEmpresa(fkEmpresa)
+//                .stream()
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
+//
+//        // Adicionar os últimos 10 agendamentos à pilha
+//        int startIndex = Math.max(0, todosAgendamentos.size() - quantidadeDesejada);
+//        for (int i = startIndex; i < todosAgendamentos.size(); i++) {
+//            ultimosAgendamentosPilha.push(todosAgendamentos.get(i));
+//        }
+//
+//        // Obter os itens da pilha na ordem correta
+//        List<UltimosAgendamentosDto> dtos = new ArrayList<>();
+//        while (!ultimosAgendamentosPilha.isEmpty()) {
+//            Agenda agenda = ultimosAgendamentosPilha.pop();
+//            if (agenda != null) {
+//                UltimosAgendamentosDto dto = AgendaMapper.toDto(agenda);
+//                if (dto != null) {
+//                    dtos.add(dto);
+//                }
+//            }
+//        }
+//
+//        return dtos;
+//    }
+
 
     public Fila mesesOrdenados() {
         Fila mesesOrdenados = new Fila(12);
@@ -210,25 +252,29 @@ public class AgendaService {
 
     }
 
+    public void vincularEmpresa(Long idEmpresa) {
 
-    public List<RelatorioAgenda> buscarPeriodos(Long id) {
-        List<Object[]> resultados = agendaRepository.buscarPeriodosPorEmpresa(id);
-        List<RelatorioAgenda> periodos = new ArrayList<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Escolha o formato que você precisa
-
-        for (Object[] resultado : resultados) {
-            String dataInicio = resultado[2] != null ? sdf.format((Timestamp) resultado[2]) : null;
-            String dataFinal = resultado[3] != null ? sdf.format((Timestamp) resultado[3]) : null;
-            BigDecimal precoTotalBD = (BigDecimal) resultado[4];
-            Double precoTotal = precoTotalBD != null ? precoTotalBD.doubleValue() : null;
-
-            // Criar o objeto RelatorioAgenda e adicioná-lo à lista de periodos
-            RelatorioAgenda periodo = new RelatorioAgenda(dataInicio, dataFinal, precoTotal);
-            periodos.add(periodo);
-        }
-
-        return periodos;
     }
+
+
+//    public List<RelatorioAgenda> buscarPeriodos(Long id) {
+//        List<Object[]> resultados = agendaRepository.buscarPeriodosPorEmpresa(id);
+//        List<RelatorioAgenda> periodos = new ArrayList<>();
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  // Escolha o formato que você precisa
+//
+//        for (Object[] resultado : resultados) {
+//            String dataInicio = resultado[2] != null ? sdf.format((Timestamp) resultado[2]) : null;
+//            String dataFinal = resultado[3] != null ? sdf.format((Timestamp) resultado[3]) : null;
+//            BigDecimal precoTotalBD = (BigDecimal) resultado[4];
+//            Double precoTotal = precoTotalBD != null ? precoTotalBD.doubleValue() : null;
+//
+//            // Criar o objeto RelatorioAgenda e adicioná-lo à lista de periodos
+//            RelatorioAgenda periodo = new RelatorioAgenda(dataInicio, dataFinal, precoTotal);
+//            periodos.add(periodo);
+//        }
+//
+//        return periodos;
+//    }
 
 
 

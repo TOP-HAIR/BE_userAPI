@@ -5,26 +5,50 @@ import school.sptech.projetotophair.domain.servico.Servico;
 import school.sptech.projetotophair.domain.usuario.Usuario;
 import school.sptech.projetotophair.service.dto.agenda.*;
 import school.sptech.projetotophair.service.dto.empresa.mapper.EmpresaMapper;
+import school.sptech.projetotophair.service.dto.usuario.mapper.UsuarioMapper;
 
 public class AgendaMapper {
 
+//    public static UltimosAgendamentosDto toDto(Agenda agenda) {
+//        if (agenda == null || agenda.getUsuarios() == null || agenda.getUsuarios().isEmpty()) {
+//            return null;
+//        }
+//
+//        // Assuming you want the first user in the list
+//        // You might want to adjust this based on your specific logic
+//        Usuario primeiroUsuario = agenda.getUsuarios().get(0);
+//
+//        UltimosAgendamentosDto dto = new UltimosAgendamentosDto();
+//        dto.setIdAgenda(agenda.getIdAgenda());
+//        dto.setIdUsuario(primeiroUsuario.getIdUsuario());
+//        dto.setNomeUsuario(primeiroUsuario.getNomeCompleto());
+//        dto.setStart(agenda.getStartTime());
+//        dto.setEnd(agenda.getEndTime());
+//        dto.setTitle(agenda.getTitle());
+//
+//        return dto;
+//    }
+
     public static UltimosAgendamentosDto toDto(Agenda agenda) {
-        if (agenda == null || agenda.getUsuarios() == null || agenda.getUsuarios().isEmpty()) {
+        if (agenda == null || agenda.getUsuario() == null || agenda.getUsuario() == null) {
             return null;
         }
 
-        // Assuming you want the first user in the list
-        // You might want to adjust this based on your specific logic
-        Usuario primeiroUsuario = agenda.getUsuarios().get(0);
-
         UltimosAgendamentosDto dto = new UltimosAgendamentosDto();
         dto.setIdAgenda(agenda.getIdAgenda());
-        dto.setIdUsuario(primeiroUsuario.getIdUsuario());
-        dto.setNomeUsuario(primeiroUsuario.getNomeCompleto());
-        dto.setData(agenda.getData());
-        dto.setHora(agenda.getHora());
-        dto.setStatus(agenda.getStatus());
+        dto.setNomeUsuario(agenda.getUsuario().getNomeCompleto());
+        dto.setIdUsuario(agenda.getUsuario().getIdUsuario());
+        dto.setStart(agenda.getStartTime());
+        dto.setEnd(agenda.getEndTime());
+        dto.setTitle(agenda.getTitle());
+        return dto;
+    }
 
+
+    public static CancelaAgendamentoDto toCancelaAgendamentoDto(Agenda agenda) {
+        CancelaAgendamentoDto dto = new CancelaAgendamentoDto();
+        dto.setIdAgenda(agenda.getIdAgenda());
+        dto.setTitle(agenda.getTitle());
         return dto;
     }
 
@@ -32,9 +56,9 @@ public class AgendaMapper {
         AgendaEmpresaVinculadaDto dto = new AgendaEmpresaVinculadaDto();
 
         dto.setIdAgenda(entity.getIdAgenda());
-        dto.setData(entity.getData());
-        dto.setHora(entity.getHora());
-        dto.setStatus(entity.getStatus());
+        dto.setStart(entity.getStartTime());
+        dto.setEnd(entity.getEndTime());
+        dto.setTitle(entity.getTitle());
         dto.setEmpresa(EmpresaMapper.toEmpresaDto(entity.getEmpresa()));
 
         return dto;
@@ -45,9 +69,9 @@ public class AgendaMapper {
 
         dto.setEmpresaDto(EmpresaMapper.toEmpresaDto(entity.getEmpresa()));
         dto.setIdAgenda(entity.getIdAgenda());
-        dto.setStatus(entity.getStatus());
-        dto.setHora(entity.getHora());
-        dto.setData(entity.getData());
+        dto.setStatus(entity.getTitle());
+        dto.setStart(entity.getStartTime());
+        dto.setEnd(entity.getEndTime());
 
         return dto;
     }
@@ -56,9 +80,9 @@ public class AgendaMapper {
         AgendaDto dto = new AgendaDto();
 
         dto.setIdAgenda(entity.getIdAgenda());
-        dto.setData(entity.getData());
-        dto.setStatus(entity.getStatus());
-        dto.setHora(entity.getHora());
+        dto.setStart(entity.getStartTime());
+        dto.setEnd(entity.getEndTime());
+        dto.setStatus(entity.getTitle());
 
         return dto;
     }
@@ -67,21 +91,21 @@ public class AgendaMapper {
         AgendaEmpresaDto dto = new AgendaEmpresaDto();
 
         // Define data de início e fim diretamente
-        dto.setStart(entity.getDataInicio());
-        dto.setEnd(entity.getDataFim());
+        dto.setStart(entity.getStartTime());
+        dto.setEnd(entity.getEndTime());
 
         // Configura a cor do status baseado no status da entidade
-        if (entity.getStatus() != null) {
-            if ("Cancelado".equalsIgnoreCase(entity.getStatus())) {
+        if (entity.getTitle() != null) {
+            if ("Cancelado".equalsIgnoreCase(entity.getTitle())) {
                 dto.setBackground("#DC3545"); // Cor para cancelado
-            } else if ("Agendado".equalsIgnoreCase(entity.getStatus())) {
+            } else if ("Agendado".equalsIgnoreCase(entity.getTitle())) {
                 dto.setBackground("#28A745"); // Cor para agendado
             }
         }
 
         // Verifica se a lista de usuários não é nula e não está vazia
-        if (entity.getUsuarios() != null && !entity.getUsuarios().isEmpty()) {
-            Usuario usuario = entity.getUsuarios().get(0); // Pegando o primeiro usuário como exemplo
+        if (entity.getUsuario() != null) {
+            Usuario usuario = entity.getUsuario(); // Pegando o primeiro usuário como exemplo
 
             // Verifica se o usuário não é nulo e possui um serviço associado não nulo
             if (usuario != null && usuario.getServico() != null && usuario.getNomeCompleto() != null) {

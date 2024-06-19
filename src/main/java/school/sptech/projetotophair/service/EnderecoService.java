@@ -6,7 +6,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import school.sptech.projetotophair.domain.endereco.Endereco;
 import school.sptech.projetotophair.domain.endereco.repository.EnderecoRepository;
-import school.sptech.projetotophair.domain.historicoservico.HistoricoServico;
 
 import java.util.Optional;
 

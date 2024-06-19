@@ -44,38 +44,34 @@ public interface EmpresaRepository extends JpaRepository<Empresa, Long>{
 //            @Param("nomeServico") String nomeServico,
 //            @Param("nomeEmpresa") String nomeEmpresa,
 //            @Param("usuarioId") Long usuarioId);
-@Query("SELECT e " +
+
+
+@Query("SELECT DISTINCT e, AVG(a.nivel) AS avgNivel " +
         "FROM Empresa e " +
+        "INNER JOIN e.endereco en " +
         "LEFT JOIN e.avaliacoes a " +
-        "LEFT JOIN e.endereco endereco " +
-        "LEFT JOIN Servico s ON s.empresa = e " +
-        "WHERE (:estado IS NULL OR endereco.estado LIKE %:estado%) " +
-        "AND (:nomeServico IS NULL OR s.nomeServico LIKE %:nomeServico%) " +
+        "WHERE (:estado IS NULL OR en.estado LIKE %:estado%) " +
         "AND (:nomeEmpresa IS NULL OR e.razaoSocial LIKE %:nomeEmpresa%) " +
-        "GROUP BY e")
+        "GROUP BY e " +
+        "ORDER BY avgNivel DESC")
 List<Object[]> findEmpresasByFiltros(
         @Param("estado") String estado,
-        @Param("nomeServico") String nomeServico,
         @Param("nomeEmpresa") String nomeEmpresa);
 
 
 
 
-
-
-    @Query("SELECT DISTINCT s.empresa, AVG(a.nivel) as avgNivel FROM Servico s " +
-            "LEFT JOIN s.empresa e " +
+    @Query("SELECT DISTINCT e, AVG(a.nivel) AS avgNivel " +
+            "FROM Empresa e " +
+            "INNER JOIN e.endereco en " +
             "LEFT JOIN e.avaliacoes a " +
-            "LEFT JOIN e.endereco endereco " +
-            "WHERE (:estado IS NULL OR endereco.estado LIKE %:estado%) " +
-            "AND (:nomeServico IS NULL OR s.nomeServico LIKE %:nomeServico%) " +
-            "AND (:nomeEmpresa IS NULL OR e.razaoSocial LIKE %:nomeEmpresa%) " +
+            "WHERE (:estado IS NULL OR en.estado LIKE %:estado%) " +
             "GROUP BY e " +
-            "ORDER BY avgNivel DESC")
+            "ORDER BY avgNivel DESC"
+    )
     List<Object[]> findEmpresasTop5ByFiltros(
-            @Param("estado") String estado,
-            @Param("nomeServico") String nomeServico,
-            @Param("nomeEmpresa") String nomeEmpresa);
+            @Param("estado") String estado);
+
 
 
     @Procedure(name = "calcularInformacoes")
